@@ -1,5 +1,5 @@
-using Pkg
-Pkg.add("Images")
+# using Pkg
+# Pkg.add("Images")
 using Images
 # define a modulo function that correctly handles negative numbers
 function modulo(value, m)
@@ -57,15 +57,30 @@ function generateRuleset(width, height)
     rows
 end
 
-function saveImage(filename :: String, input)
+function mapImg(input)
     # paint true cells as black, false ones as white
     color(b) = b ? 0.0 : 1.0
 
-    img = input .|> (row) -> (row .|> color)
+    tmpImg = input .|> (row) -> (row .|> color)
 
-    img .|> println
-    
-    # Images.save(filename, img)
+    # this is ugly, basically I just want to convert the tmpImg of type (Array{Array{Float64, 1}, 1})
+    # to Array{Float64, 2}
+    height = length(tmpImg)
+    width = length(first(tmpImg))
+    output = zeros(height, width)
+    for y in 1:height
+        for x in 1:width
+            output[y, x] = tmpImg[y][x]
+        end
+    end
+
+    output
+end
+
+
+function saveImage(filename :: String, input)
+    img = mapImg(input)
+    Images.save(filename, img)
 end
 
 # first, create a 21 by 21*3 version
@@ -75,4 +90,4 @@ saveImage("21x63.png", generateRuleset(21,63))
 
 # let's go bonkers and create a huge 999x999 version!
 
-# saveImage("999x999.png", generateRuleset(999, 999))
+saveImage("999x999.png", generateRuleset(999, 999))
